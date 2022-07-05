@@ -7,7 +7,7 @@ namespace FizzBuzz;
 [Flags]
 public enum Rules
 {
-    None    = 0b_0000_0000,
+    None    = 0b_0000_0000, 
     Fizz    = 0b_0000_0001,
     Buzz    = 0b_0000_0010,
     Bang    = 0b_0000_0100,
@@ -22,10 +22,9 @@ class FizzBuzz
 
     static void Main(string[] args)
     {
+        Console.WriteLine("~~Welcome to FizzBuzz~~" +
+                          "\n================================================");
         var max = ChangeMaxNum();
-
-        Console.WriteLine("Would you like to enable any rules?");
-        InputChecks.getYN();
         Rules selectedRules = RuleChooser();
         for (int i = 1; i <= max; i++)
         {
@@ -45,26 +44,58 @@ class FizzBuzz
     {
         Rules selectedRules = Rules.None;
         int input = 0;
+        const int maxOp = 128;
+        
+        Console.WriteLine("Would you like to enable any rules?");
+        if (!InputChecks.getYN())
+        {
+            return selectedRules;
+        }
+
         do
         {
+            //" + (CheckRule(Rules.Fizz,selectedRules)?" (ON) ":" (OFF))" + " 
             Console.WriteLine("Type a number to toggle that rule. (Or disable/enable all rules)");
-            input = InputChecks.getValidInt(posOnly:true);
-            if (input is (int)Rules.None or (int)Rules.All)
+            Console.WriteLine("0) None,\n" +
+                              "1) Fizz " + (CheckRule(Rules.Fizz,selectedRules)?" (ON)":" (OFF) ") + " \n" +
+                              "2) Buzz" + (CheckRule(Rules.Buzz,selectedRules)?" (ON)":" (OFF)") + "\n" +
+                              "3) Bang" + (CheckRule(Rules.Bang,selectedRules)?" (ON)":" (OFF)") + "\n" +
+                              "4) Bong" + (CheckRule(Rules.Bong,selectedRules)?" (ON)":" (OFF)") + "\n" +
+                              "5) Fezz" + (CheckRule(Rules.Fezz,selectedRules)?" (ON)":" (OFF)") + "\n" +
+                              "6) Reverse" + (CheckRule(Rules.Reverse,selectedRules)?" (ON)":" (OFF)") + "\n" +
+                              "7) All \n" +
+                              "8) Exit Rule Selection");
+            input = (int)Math.Pow(2, InputChecks.getValidInt(posOnly:true)-1); //2 to the power of input, for easy comparison
+            Console.WriteLine(input);
+
+            if (input == maxOp) //Exit
             {
-                selectedRules = (Rules)input;
+                break;
             }
-            else if (input < (int)Rules.All)
-            {
-                selectedRules ^= (Rules)input;
-            }
-            else
+            else if (input > maxOp)
             {
                 Console.WriteLine("Invalid Input.");
             }
-            Console.WriteLine("Finished? Y/N");
-        } while (!InputChecks.getYN());
+            else if (input is 64)
+            {
+                selectedRules = Rules.All;
+            }
+            else if (input is 0)
+            {
+                selectedRules = Rules.None;
+            }
+            else
+            {
+                selectedRules ^= (Rules)(input);
+            }
+        } while (true);
 
         return selectedRules;
+    }
+    
+    private static bool CheckRule(Rules toCheck, Rules selectedRules)
+    {
+        return (selectedRules & toCheck) == toCheck;
     }
 
     private class FizzBuzzNum
