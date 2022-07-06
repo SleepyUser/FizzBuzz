@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using System.Collections;
 using System.Data;
 
 namespace FizzBuzz;
@@ -19,7 +20,7 @@ public enum Rules
 
 class FizzBuzz
 {
-
+    
     static void Main(string[] args)
     {
         Console.WriteLine("~~Welcome to FizzBuzz~~" +
@@ -28,8 +29,13 @@ class FizzBuzz
         Rules selectedRules = RuleChooser();
         for (int i = 1; i <= max; i++)
         {
-            new FizzBuzzNum(i, selectedRules);
+            Console.WriteLine(new FizzBuzzNum(i, selectedRules).PrintOutput);
         }
+        // FizzBuzzNums fizzbuzzer = new FizzBuzzNums(max, selectedRules);
+        // foreach (var value in fizzbuzzer)
+        // {
+        //     Console.WriteLine(value);
+        // }
     }
 
     private static int ChangeMaxNum()
@@ -54,7 +60,7 @@ class FizzBuzz
 
         do
         {
-            //" + (CheckRule(Rules.Fizz,selectedRules)?" (ON) ":" (OFF))" + " 
+            Console.Clear();
             Console.WriteLine("Type a number to toggle that rule. (Or disable/enable all rules)");
             Console.WriteLine("0) None,\n" +
                               "1) Fizz " + (CheckRule(Rules.Fizz,selectedRules)?" (ON)":" (OFF) ") + " \n" +
@@ -66,36 +72,60 @@ class FizzBuzz
                               "7) All \n" +
                               "8) Exit Rule Selection");
             input = (int)Math.Pow(2, InputChecks.getValidInt(posOnly:true)-1); //2 to the power of input, for easy comparison
-            Console.WriteLine(input);
 
-            if (input == maxOp) //Exit
+            //Console.WriteLine(input);
+            switch (input)
             {
-                break;
-            }
-            else if (input > maxOp)
-            {
-                Console.WriteLine("Invalid Input.");
-            }
-            else if (input is 64)
-            {
-                selectedRules = Rules.All;
-            }
-            else if (input is 0)
-            {
-                selectedRules = Rules.None;
-            }
-            else
-            {
-                selectedRules ^= (Rules)(input);
+                case maxOp: // If "exit rule selection"
+                    return selectedRules;
+                case > maxOp: //When input is too high for any option
+                    Console.WriteLine("Invalid Input.");
+                    break;
+                case 64: //When input is 7 (All rules)
+                    selectedRules = Rules.All;
+                    break;
+                case 0: //When input is 0 (No rules)
+                    selectedRules = Rules.None;
+                    break;
+                default: //When input is *a* single rule
+                    selectedRules ^= (Rules)(input);
+                    break;
             }
         } while (true);
-
-        return selectedRules;
     }
     
     private static bool CheckRule(Rules toCheck, Rules selectedRules)
     {
         return (selectedRules & toCheck) == toCheck;
+    }
+
+    private class FizzBuzzNums : IEnumerable<string>
+    {
+        private string[] _fizzBuzzArray;
+        public FizzBuzzNums(int maxNum, Rules selectedRules)
+        {
+            _fizzBuzzArray = new string[maxNum];
+            for (int i = 0; i < maxNum; i++)
+            {
+                _fizzBuzzArray[i] = new FizzBuzzNum(i + 1, selectedRules).PrintOutput;
+            }
+        }
+
+        public string this[int index]
+        {
+            get {return (string)_fizzBuzzArray[index];}
+            set { ; }
+
+        }
+        public IEnumerator<string> GetEnumerator()
+        {
+            return (IEnumerator<string>)_fizzBuzzArray.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
     }
 
     private class FizzBuzzNum
@@ -104,6 +134,7 @@ class FizzBuzz
         private bool _numexists = true;
         private int _number = 0;
         private Rules _selectedRules;
+        public string PrintOutput;
 
         public FizzBuzzNum(int number, Rules selectedRules)
         {
@@ -148,8 +179,9 @@ class FizzBuzz
                 Reverse();
             }
             
-            Console.WriteLine(string.Concat(_output));
-        }
+            PrintOutput = string.Concat(_output);
+
+            }
 
         private bool checkRule(Rules toCheck)
         {
