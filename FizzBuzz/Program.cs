@@ -73,7 +73,6 @@ class FizzBuzz
                               "8) Exit Rule Selection");
             input = (int)Math.Pow(2, InputChecks.getValidInt(posOnly:true)-1); //2 to the power of input, for easy comparison
 
-            //Console.WriteLine(input);
             switch (input)
             {
                 case maxOp: // If "exit rule selection"
